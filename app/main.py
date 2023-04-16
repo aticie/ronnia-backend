@@ -1,16 +1,40 @@
-# This is a sample Python script.
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from routers import oauth
+from motor.motor_asyncio import AsyncIOMotorClient
+from config import settings
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+app = FastAPI()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(oauth.router)
+
+
+@app.on_event("startup")
+async def startup_db_client():
+    app.mongodb_client = AsyncIOMotorClient(settings.MONGODB_URL)
+
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    app.mongodb_client.close()
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host=settings.PUBLISH_HOST,
+        reload=settings.DEBUG_MODE,
+        port=settings.PUBLISH_PORT,
+    )

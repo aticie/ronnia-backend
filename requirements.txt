@@ -1,0 +1,8 @@
+pydantic==1.10.7
+fastapi==0.95.1
+motor==3.1.2
+uvicorn[standard]==0.21.1
+aiosu==1.4.1
+
+# Code standards
+black==23.3.0
