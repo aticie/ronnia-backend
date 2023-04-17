@@ -4,6 +4,7 @@ from pydantic import BaseSettings
 class CommonSettings(BaseSettings):
     APP_NAME: str = "Ronnia"
     DEBUG_MODE: bool = False
+    LOG_LEVEL: str = "INFO"
 
 
 class ServerSettings(BaseSettings):

@@ -1,15 +1,21 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-
-from routers import oauth
 from motor.motor_asyncio import AsyncIOMotorClient
-from config import settings
 
+from app.config import settings
+from app.routers import oauth
 
-app = FastAPI()
+logger = logging.getLogger(__name__)
 
-origins = ["*"]
+if settings.DEBUG_MODE:
+    app = FastAPI()
+    origins = ["*"]
+else:
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    origins = ["ronnia.me", "www.ronnia.me", "api.ronnia.me"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -29,12 +35,3 @@ async def startup_db_client():
 @app.on_event("shutdown")
 async def shutdown_db_client():
     app.mongodb_client.close()
-
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host=settings.PUBLISH_HOST,
-        reload=settings.DEBUG_MODE,
-        port=settings.PUBLISH_PORT,
-    )
