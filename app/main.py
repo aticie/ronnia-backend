@@ -2,10 +2,9 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.config import settings
-from app.routers import oauth
+from app.routers import oauth, user
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +24,4 @@ app.add_middleware(
 )
 
 app.include_router(oauth.router)
-
-
-@app.on_event("startup")
-async def startup_db_client():
-    app.mongodb_client = AsyncIOMotorClient(settings.MONGODB_URL)
-
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    app.mongodb_client.close()
+app.include_router(user.router)

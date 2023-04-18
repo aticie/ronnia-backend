@@ -2,7 +2,9 @@ pydantic==1.10.7
 fastapi==0.95.1
 motor==3.1.2
 uvicorn[standard]==0.21.1
-aiosu==1.4.1
+aiosu==1.5.0
+python-jose[cryptography]==3.3.0
+twitchAPI==3.10.0
 
 # Code standards
 black==23.3.0

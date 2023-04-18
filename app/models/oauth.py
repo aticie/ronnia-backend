@@ -21,4 +21,4 @@ class OsuOauthClientCredentialsTokenResponse(OauthBaseTokenResponse):
 
 
 class TwitchOauthAuthorizationCodeTokenResponse(OauthBaseTokenResponse):
-    scope: List[str]
+    scope: List[str] = ["user:read:email"]

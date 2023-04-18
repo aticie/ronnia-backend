@@ -25,7 +25,14 @@ class APISettings(BaseSettings):
     TWITCH_REDIRECT_URI: str
 
 
-class Settings(CommonSettings, ServerSettings, DatabaseSettings, APISettings):
+class AuthSettings(BaseSettings):
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+
+
+class Settings(
+    CommonSettings, ServerSettings, DatabaseSettings, APISettings, AuthSettings
+):
     pass
 
 
