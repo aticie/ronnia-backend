@@ -34,9 +34,9 @@ Assuming you are using Linux based environment:
 
 Build the Dockerfile and run the image.
 
-1. Build the Dockerfile with `docker build -t ronnia-backend --build-arg PORT=8000 .`.
-2. Run the image with `docker run --name ronnia-backend-server -d -p 8000:8000 ronnia-backend`.
-3. The server should now be running on `http://localhost:8000`.
+1. Build the Dockerfile with `docker build -t ronnia-backend --build-arg PORT=5000 .`.
+2. Run the image with `docker run --name ronnia-backend-server -d -p 5000:5000 ronnia-backend`.
+3. The server should now be running on `http://localhost:5000`.
 
 
 ### Docker Compose
@@ -53,10 +53,12 @@ services:
       args:
         PORT: 5000
     ports:
-      - "8080:5000"
+      - "5000:5000"
     image: ronnia-backend
     restart: always
     env_file: .env
 ```
 
-Make sure that your `.env` file is in the same folder as the `docker-compose.yml` file.
+Make sure that your `.env` file is in the same folder as the `docker-compose.yml` file. 
+
+The server should now be running on `http://localhost:5000`.
