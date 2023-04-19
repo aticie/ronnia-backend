@@ -1,8 +1,5 @@
-from typing import Optional, Union
-
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from app.models.api import StrippedOsuUser, StrippedTwitchUser
 from app.models.db import UserModel
 
 
@@ -26,9 +23,7 @@ class AsyncMongoClient(AsyncIOMotorClient):
         if user is not None:
             return UserModel(**user)
 
-    async def insert_partial_user(
-        self, user: Union[StrippedOsuUser, StrippedTwitchUser]
-    ):
+    async def insert_user(self, user: UserModel):
         return await self.users_collection.insert_one(user)
 
     async def update_user(self, user: dict):

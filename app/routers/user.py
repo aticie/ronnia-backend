@@ -1,22 +1,18 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordBearer, OAuth2, OAuth2AuthorizationCodeBearer
+from fastapi import APIRouter, Depends, Cookie
+
+from app.utils.jwt import decode_jwt
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-oauth2_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl="https://osu.ppy.sh/oauth/authorize",
-    tokenUrl="https://osu.ppy.sh/oauth/token",
-    scopes={
-        "identify": "Identify your account",
-        "public": "Access public information about your account",
-    },
-)
+
+def decode_jwt_token(token: Annotated[str, Cookie()]):
+    return decode_jwt(token)
 
 
 @router.get("/user_details", summary="Gets registered user details from database")
-async def get_user_details(token: Annotated[str, Depends(oauth2_scheme)]):
-    pass
+async def get_user_details(user: Annotated[dict, Depends(decode_jwt_token)]):
+    return user
