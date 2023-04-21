@@ -35,7 +35,7 @@ async def osu_oauth2_redirect(
 
 @router.get("/twitch-login")
 async def osu_oauth2_login(request: Request):
-    login_handler = OsuLoginHandler(mongo_db=mongo_db)
+    login_handler = TwitchLoginHandler(mongo_db=mongo_db)
     auth_url = login_handler.generate_auth_url(state=request.headers.get("referer"))
     return RedirectResponse(url=auth_url)
 
@@ -66,7 +66,7 @@ async def redirect_route(
         jwt_token = login_handler.create_partial_user_jwt()
         redirect_response.set_cookie(
             key="signup",
-            value="osu",
+            value="osu" if isinstance(login_handler, OsuLoginHandler) else "twitch",
         )
         redirect_response.set_cookie(
             key="signup_details",

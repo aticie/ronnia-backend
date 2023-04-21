@@ -14,12 +14,12 @@ class AsyncMongoClient(AsyncIOMotorClient):
         self.exclude_collection = self.users_db.get_collection("ExcludeList")
 
     async def get_user_from_twitch_id(self, twitch_id: int) -> UserModel:
-        user = await self.users_collection.find_one({"twitch_id": str(twitch_id)})
+        user = await self.users_collection.find_one({"twitch_id": twitch_id})
         if user is not None:
             return UserModel(**user)
 
     async def get_user_from_osu_id(self, osu_id: int) -> UserModel:
-        user = await self.users_collection.find_one({"osu_id": str(osu_id)})
+        user = await self.users_collection.find_one({"osu_id": osu_id})
         if user is not None:
             return UserModel(**user)
 

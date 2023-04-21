@@ -20,3 +20,4 @@ ENV PYTHONPATH=/src;/src/app
 WORKDIR /src
 # Start the app
 CMD uvicorn app.main:app --host :: --port ${PORT}
+

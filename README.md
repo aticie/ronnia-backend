@@ -56,7 +56,7 @@ services:
       - "5000:5000"
     image: ronnia-backend
     restart: always
-    env_file: .env
+    env_file: ..env
 ```
 
 Make sure that your `.env` file is in the same folder as the `docker-compose.yml` file. 

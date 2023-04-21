@@ -2,6 +2,7 @@ from abc import ABC
 from typing import Optional, Dict, Any, Union
 
 import aiohttp
+from fastapi.encoders import jsonable_encoder
 from jose import jwt
 
 from app.config import settings
@@ -22,6 +23,7 @@ class BaseLoginHandler:
         mongo_db: Optional[AsyncMongoClient] = None,
     ):
         self._mongo_client: AsyncMongoClient = mongo_db
+        self._auth_header = {}
         self._access_token = None
         self.api_user = None
         self._oauth_handler = None
@@ -34,8 +36,8 @@ class BaseLoginHandler:
         return self._oauth_handler.generate_auth_url(state)
 
     async def _get_user_from_token(self, access_token: str) -> Dict[str, Any]:
-        auth_header = {"Authorization": f"Bearer {access_token}"}
-        async with aiohttp.ClientSession(headers=auth_header) as session:
+        self._auth_header["Authorization"] = f"Bearer {access_token}"
+        async with aiohttp.ClientSession(headers=self._auth_header) as session:
             async with session.get(self.me_url) as response:
                 return await response.json()
 
@@ -81,7 +83,7 @@ class OsuLoginHandler(BaseLoginHandler):
         self.api_user: StrippedOsuUser
 
     async def _insert_user_to_db(self):
-        user_partial_details = jwt.decode(self.signup_cookie, settings.SECRET_KEY)
+        user_partial_details = jwt.decode(self.signup_cookie, settings.JWT_SECRET_KEY)
         user_full_details = DBUserModel(
             osu_id=self.api_user.id,
             osu_username=self.api_user.username,
@@ -90,8 +92,8 @@ class OsuLoginHandler(BaseLoginHandler):
             twitch_username=user_partial_details.get("login"),
             twitch_avatar_url=user_partial_details.get("profile_image_url"),
         )
-
-        await self._mongo_client.insert_user(user_full_details)
+        user = jsonable_encoder(user_full_details)
+        await self._mongo_client.insert_user(user)
 
     async def _get_user_from_token(self, access_token: str) -> StrippedOsuUser:
         user_dict = await super()._get_user_from_token(access_token)
@@ -106,7 +108,7 @@ class TwitchLoginHandler(BaseLoginHandler, ABC):
     def __init__(self, mongo_db: AsyncMongoClient):
         super().__init__(mongo_db=mongo_db)
         self.me_url = "https://api.twitch.tv/helix/users"
-        self.oauth_handler = TwitchOauthHandler(
+        self._oauth_handler = TwitchOauthHandler(
             settings.TWITCH_CLIENT_ID,
             settings.TWITCH_CLIENT_SECRET,
             settings.TWITCH_REDIRECT_URI,
@@ -115,7 +117,7 @@ class TwitchLoginHandler(BaseLoginHandler, ABC):
         self.api_user: StrippedTwitchUser
 
     async def _insert_user_to_db(self):
-        user_partial_details = jwt.decode(self.signup_cookie, settings.SECRET_KEY)
+        user_partial_details = jwt.decode(self.signup_cookie, settings.JWT_SECRET_KEY)
         user_full_details = DBUserModel(
             twitch_id=self.api_user.id,
             twitch_username=self.api_user.login,
@@ -124,11 +126,13 @@ class TwitchLoginHandler(BaseLoginHandler, ABC):
             osu_username=user_partial_details.get("username"),
             osu_avatar_url=user_partial_details.get("avatar_url"),
         )
-
-        await self._mongo_client.insert_user(user_full_details)
+        user = jsonable_encoder(user_full_details)
+        await self._mongo_client.insert_user(user)
 
     async def _get_user_from_token(self, access_token: str) -> StrippedTwitchUser:
-        user_dict = await super()._get_user_from_token(access_token)
+        self._auth_header["Client-Id"] = self._oauth_handler.client_id
+        twitch_response = await super()._get_user_from_token(access_token)
+        user_dict = twitch_response["data"][0]
         return StrippedTwitchUser(**user_dict)
 
     async def _get_user_from_db(self, twitch_user: StrippedTwitchUser) -> DBUserModel:
