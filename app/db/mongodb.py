@@ -1,6 +1,11 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+import logging
 
-from app.models.db import UserModel
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.errors import BulkWriteError
+
+from app.models.db import DBUser
+
+logger = logging.getLogger(__name__)
 
 
 class AsyncMongoClient(AsyncIOMotorClient):
@@ -13,20 +18,43 @@ class AsyncMongoClient(AsyncIOMotorClient):
         self.settings_collection = self.users_db.get_collection("Settings")
         self.exclude_collection = self.users_db.get_collection("ExcludeList")
 
-    async def get_user_from_twitch_id(self, twitch_id: int) -> UserModel:
-        user = await self.users_collection.find_one({"twitch_id": twitch_id})
+    async def get_user_from_twitch_id(self, twitch_id: int) -> DBUser:
+        logger.info(f"Getting user from twitch id: {twitch_id}")
+        user = await self.users_collection.find_one({"twitchId": twitch_id})
         if user is not None:
-            return UserModel(**user)
+            logger.info(f"Found user: {user}")
+            return DBUser(**user)
+        logger.info(f"User not found")
 
-    async def get_user_from_osu_id(self, osu_id: int) -> UserModel:
-        user = await self.users_collection.find_one({"osu_id": osu_id})
+    async def get_user_from_osu_id(self, osu_id: int) -> DBUser:
+        logger.info(f"Getting user from osu id: {osu_id}")
+        user = await self.users_collection.find_one({"osuId": osu_id})
         if user is not None:
-            return UserModel(**user)
+            logger.info(f"Found user: {user}")
+            return DBUser(**user)
+        logger.info(f"User not found")
 
-    async def insert_user(self, user: UserModel):
-        return await self.users_collection.insert_one(user)
-
-    async def update_user(self, user: dict):
+    async def upsert_user(self, user: dict):
+        logger.info(f"Upserting user: {user}")
         return await self.users_collection.update_one(
-            {"_id": user["_id"]}, {"$set": user}
+            {"osuId": user["osu_id"]}, {"$set": user}, upsert=True
         )
+
+    async def remove_user_by_twitch_id(self, twitch_id: int):
+        logger.info(f"Removing user by twitch id: {twitch_id}")
+        return await self.users_collection.delete_one({"twitchId": twitch_id})
+
+    async def bulk_write_operations(self, operations: list, collection: str = "Users"):
+        logger.info(f"Bulk writing {len(operations)} operations..")
+        col = self.users_db.get_collection(collection)
+        try:
+            result = await col.bulk_write(operations)
+            return result
+        except BulkWriteError as bwe:
+            logger.error(bwe.details)
+
+    async def get_default_settings(self):
+        logger.info("Getting default settings...")
+        settings = await self.settings_collection.find().to_list(length=100)
+        logger.info(f"Found {len(settings)} settings.")
+        return settings

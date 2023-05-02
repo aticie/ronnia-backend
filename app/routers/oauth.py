@@ -1,8 +1,9 @@
+import datetime
 from typing import Optional, Union, Annotated
 
 from fastapi import APIRouter, Cookie
 from fastapi.requests import Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 
 from app.config import settings
 from app.db.mongodb import AsyncMongoClient
@@ -12,14 +13,14 @@ router = APIRouter(prefix="/oauth2", tags=["oauth2"])
 mongo_db = AsyncMongoClient(settings.MONGODB_URL)
 
 
-@router.get("/osu-login")
+@router.get("/osu-login", summary="Redirects to the osu! OAuth page.")
 async def osu_oauth2_login(request: Request):
     login_handler = OsuLoginHandler(mongo_db=mongo_db)
     auth_url = login_handler.generate_auth_url(state=request.headers.get("referer"))
     return RedirectResponse(url=auth_url)
 
 
-@router.get("/osu-redirect")
+@router.get("/osu-redirect", summary="Handles OAuth redirect from osu!.")
 async def osu_oauth2_redirect(
     code: str,
     state: Optional[str] = None,
@@ -33,14 +34,14 @@ async def osu_oauth2_redirect(
     return redirect_response
 
 
-@router.get("/twitch-login")
+@router.get("/twitch-login", summary="Redirects to the Twitch OAuth page.")
 async def osu_oauth2_login(request: Request):
     login_handler = TwitchLoginHandler(mongo_db=mongo_db)
     auth_url = login_handler.generate_auth_url(state=request.headers.get("referer"))
     return RedirectResponse(url=auth_url)
 
 
-@router.get("/twitch-redirect")
+@router.get("/twitch-redirect", summary="Handles OAuth redirect from Twitch.")
 async def osu_oauth2_redirect(
     code: str,
     state: Optional[str] = None,
@@ -61,6 +62,8 @@ async def redirect_route(
     db_user = await login_handler.get_user(code=code)
     if db_user:
         jwt_token = login_handler.create_user_jwt(db_user)
+        redirect_response.set_cookie(key="signup", expires=0, max_age=0)
+        redirect_response.set_cookie(key="signup_details", expires=0, max_age=0)
         redirect_response.set_cookie(key="token", value=jwt_token)
     else:
         jwt_token = login_handler.create_partial_user_jwt()

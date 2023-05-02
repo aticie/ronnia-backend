@@ -1,10 +1,21 @@
+from typing import List, Tuple, Any
+
 from pydantic import BaseModel
 
 
-class UserModel(BaseModel):
-    osu_id: int
-    osu_username: str
-    osu_avatar_url: str = ""
-    twitch_id: int
-    twitch_username: str
-    twitch_avatar_url: str = ""
+class DBSetting(BaseModel):
+    name: str
+    value: float | Tuple[float, float]
+    type: str
+    description: str = ""
+
+
+class DBUser(BaseModel):
+    osuId: int
+    osuUsername: str
+    osuAvatarUrl: str = ""
+    twitchId: int
+    twitchUsername: str
+    twitchAvatarUrl: str = ""
+    settings: dict = {}
+    excludedUsers: List[str] = []
