@@ -44,6 +44,10 @@ class AsyncMongoClient(AsyncIOMotorClient):
         logger.info(f"Removing user by twitch id: {twitch_id}")
         return await self.users_collection.delete_one({"twitchId": twitch_id})
 
+    async def remove_user_by_osu_id(self, osu_id: int):
+        logger.info(f"Removing user by osu! id: {osu_id}")
+        return await self.users_collection.delete_one({"osuId": osu_id})
+
     async def bulk_write_operations(self, operations: list, collection: str = "Users"):
         logger.info(f"Bulk writing {len(operations)} operations..")
         col = self.users_db.get_collection(collection)
@@ -58,3 +62,15 @@ class AsyncMongoClient(AsyncIOMotorClient):
         settings = await self.settings_collection.find().to_list(length=100)
         logger.info(f"Found {len(settings)} settings.")
         return [DBSetting(**setting) for setting in settings]
+
+    async def get_user_settings(self, osu_id: int):
+        logger.info("Getting user settings...")
+        default_settings = await self.get_default_settings()
+        user = await self.users_collection.find_one({"osuId": osu_id})
+        db_user = DBUser(**user)
+        user_settings = db_user.settings
+
+        for setting in default_settings:
+            if setting.name in user_settings:
+                setting.value = user_settings[setting.name]
+        return default_settings
