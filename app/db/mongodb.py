@@ -37,7 +37,7 @@ class AsyncMongoClient(AsyncIOMotorClient):
     async def upsert_user(self, user: dict):
         logger.info(f"Upserting user: {user}")
         return await self.users_collection.update_one(
-            {"osuId": user["osu_id"]}, {"$set": user}, upsert=True
+            {"osuId": user["osuId"]}, {"$set": user}, upsert=True
         )
 
     async def remove_user_by_twitch_id(self, twitch_id: int):

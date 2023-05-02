@@ -1,9 +1,8 @@
-import datetime
 from typing import Optional, Union, Annotated
 
 from fastapi import APIRouter, Cookie
 from fastapi.requests import Request
-from fastapi.responses import RedirectResponse, Response
+from fastapi.responses import RedirectResponse
 
 from app.config import settings
 from app.db.mongodb import AsyncMongoClient
