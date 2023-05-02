@@ -3,7 +3,7 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import BulkWriteError
 
-from app.models.db import DBUser
+from app.models.db import DBUser, DBSetting
 
 logger = logging.getLogger(__name__)
 
@@ -57,4 +57,4 @@ class AsyncMongoClient(AsyncIOMotorClient):
         logger.info("Getting default settings...")
         settings = await self.settings_collection.find().to_list(length=100)
         logger.info(f"Found {len(settings)} settings.")
-        return settings
+        return [DBSetting(**setting) for setting in settings]
