@@ -17,5 +17,5 @@ class DBUser(BaseModel):
     twitchId: int
     twitchUsername: str
     twitchAvatarUrl: str = ""
-    settings: dict = {}
+    settings: List[DBSetting] = []
     excludedUsers: List[str] = []
