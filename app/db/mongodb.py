@@ -3,7 +3,7 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import BulkWriteError
 
-from app.models.db import DBUser, DBSetting, DBUserSettings
+from app.models.db import DBUser, DBSetting
 
 logger = logging.getLogger(__name__)
 

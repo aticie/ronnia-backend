@@ -10,13 +10,13 @@ class DBUserSettings(BaseModel):
     points_only: Optional[bool] = Field(alias='points-only')
     test: Optional[bool]
     cooldown: Optional[float] = Field(None, ge=0)
-    sr: Optional[Tuple[float, float]]
+    sr: Optional[Tuple[float, float]] = (0, -1)
 
     @validator('sr')
     def sr_must_be_in_range(cls, v):
         if v is not None:
-            if v[0] < 0:
-                raise ValueError("SR must be between 0 and 100.")
+            if v[0] <= 0:
+                raise ValueError("SR lower value must be positive.")
             elif v[1] != -1 and v[1] < v[0]:
                 raise ValueError("SR max value must be higher than lower value.")
         return v
