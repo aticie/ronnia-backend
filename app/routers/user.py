@@ -48,10 +48,10 @@ async def post_settings(user: Annotated[dict, Depends(decode_user_token)],
 @router.post("/exclude", summary="Adds an excluded user to user's list")
 async def add_excluded_user(user: Annotated[dict, Depends(decode_user_token)],
                             excluded_user: str):
-    await mongo_db.add_excluded_user(user["twitchId"], excluded_user)
+    await mongo_db.add_excluded_user(user["osuId"], excluded_user)
 
 
 @router.delete("/exclude", summary="Adds an excluded user to user's list")
 async def remove_excluded_user(user: Annotated[dict, Depends(decode_user_token)],
                                excluded_user: str):
-    await mongo_db.remove_excluded_user(user["twitchId"], excluded_user)
+    await mongo_db.remove_excluded_user(user["osuId"], excluded_user)
