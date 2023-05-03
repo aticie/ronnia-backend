@@ -15,7 +15,7 @@ class DBUserSettings(BaseModel):
     @validator('sr')
     def sr_must_be_in_range(cls, v):
         if v is not None:
-            if v[0] <= 0:
+            if v[0] < 0:
                 raise ValueError("SR lower value must be positive.")
             elif v[1] != -1 and v[1] < v[0]:
                 raise ValueError("SR max value must be higher than lower value.")
