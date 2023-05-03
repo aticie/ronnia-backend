@@ -40,4 +40,4 @@ class UserResponse(BaseModel):
 
 
 class DBUser(UserResponse):
-    settings: Optional[DBUserSettings] = None
+    settings: DBUserSettings = DBUserSettings()
