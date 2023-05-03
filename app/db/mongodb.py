@@ -3,7 +3,7 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import BulkWriteError
 
-from app.models.db import DBUser, DBSetting
+from app.models.db import DBUser, DBSetting, DBUserSettings
 
 logger = logging.getLogger(__name__)
 
@@ -68,11 +68,12 @@ class AsyncMongoClient(AsyncIOMotorClient):
         default_settings = await self.get_default_settings()
         user = await self.users_collection.find_one({"osuId": osu_id})
         db_user = DBUser(**user)
-        user_settings = db_user.settings
+        user_settings_dict = db_user.settings.dict(by_alias=True)
 
         for setting in default_settings:
-            if setting.name in user_settings:
-                setting.value = user_settings[setting.name]
+            if user_settings_dict[setting.name] is not None:
+                setting.value = user_settings_dict[setting.name]
+
         return default_settings
 
     async def update_user_settings(self, osu_id: int, settings: DBSetting):

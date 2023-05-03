@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse
 
 from app.config import settings
 from app.db.mongodb import AsyncMongoClient
-from app.models.db import DBUserSettings
+from app.models.db import DBUserSettings, UserResponse
 from app.utils.jwt import decode_jwt
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ def decode_user_token(token: Annotated[str, Cookie()]):
 @router.get("/me", summary="Gets registered user details from database")
 async def get_user_details(user: Annotated[dict, Depends(decode_user_token)]):
     db_user = await mongo_db.get_user_from_osu_id(user["osuId"])
-    return db_user
+    return UserResponse(**db_user.dict())
 
 
 @router.delete("/me", summary="Deletes the registered user from database")

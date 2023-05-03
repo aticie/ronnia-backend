@@ -1,16 +1,25 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class DBUserSettings(BaseModel):
-    echo: bool
-    enable: bool
-    sub_only: bool = Field(alias='sub-only')
-    points_only: bool = Field(alias='points-only')
-    test: bool
-    cooldown: float
-    sr: Tuple[float, float]
+    echo: Optional[bool]
+    enable: Optional[bool]
+    sub_only: Optional[bool] = Field(alias='sub-only')
+    points_only: Optional[bool] = Field(alias='points-only')
+    test: Optional[bool]
+    cooldown: Optional[float] = Field(None, ge=0)
+    sr: Optional[Tuple[float, float]]
+
+    @validator('sr')
+    def sr_must_be_in_range(cls, v):
+        if v is not None:
+            if v[0] < 0:
+                raise ValueError("SR must be between 0 and 100.")
+            elif v[1] != -1 and v[1] < v[0]:
+                raise ValueError("SR max value must be higher than lower value.")
+        return v
 
 
 class DBSetting(BaseModel):
@@ -20,7 +29,7 @@ class DBSetting(BaseModel):
     description: str = ""
 
 
-class DBUser(BaseModel):
+class UserResponse(BaseModel):
     osuId: int
     osuUsername: str
     osuAvatarUrl: str = ""
@@ -28,4 +37,7 @@ class DBUser(BaseModel):
     twitchUsername: str
     twitchAvatarUrl: str = ""
     excludedUsers: List[str] = []
-    settings: dict = {}
+
+
+class DBUser(UserResponse):
+    settings: Optional[DBUserSettings] = None
