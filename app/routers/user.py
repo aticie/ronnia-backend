@@ -3,8 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Cookie
 from fastapi.requests import Request
-from fastapi.responses import RedirectResponse, Response
-from pymongo.results import DeleteResult
+from fastapi.responses import RedirectResponse
 
 from app.config import settings
 from app.db.mongodb import AsyncMongoClient
