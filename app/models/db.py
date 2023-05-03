@@ -1,4 +1,4 @@
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Optional
 
 from pydantic import BaseModel
 
@@ -18,3 +18,4 @@ class DBUser(BaseModel):
     twitchUsername: str
     twitchAvatarUrl: str = ""
     excludedUsers: List[str] = []
+    settings: Optional[dict] = None
