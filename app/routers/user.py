@@ -8,6 +8,7 @@ from pymongo.results import DeleteResult
 
 from app.config import settings
 from app.db.mongodb import AsyncMongoClient
+from app.models.db import DBUserSettings
 from app.utils.jwt import decode_jwt
 
 logger = logging.getLogger(__name__)
@@ -37,3 +38,9 @@ async def remove_user(user: Annotated[dict, Depends(decode_user_token)],
 @router.get("/settings", summary="Gets user settings from database")
 async def get_settings(user: Annotated[dict, Depends(decode_user_token)]):
     return await mongo_db.get_user_settings(user["osuId"])
+
+
+@router.post("/settings", summary="Post user settings to database")
+async def get_settings(user: Annotated[dict, Depends(decode_user_token)],
+                       user_settings: dict):
+    await mongo_db.update_user_settings(user["osuId"], DBUserSettings(**user_settings))

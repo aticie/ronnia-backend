@@ -1,6 +1,16 @@
-from typing import List, Tuple, Any, Optional
+from typing import List, Tuple
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+class DBUserSettings(BaseModel):
+    echo: bool
+    enable: bool
+    sub_only: bool = Field(alias='sub-only')
+    points_only: bool = Field(alias='points-only')
+    test: bool
+    cooldown: float
+    sr: Tuple[float, float]
 
 
 class DBSetting(BaseModel):
@@ -18,4 +28,4 @@ class DBUser(BaseModel):
     twitchUsername: str
     twitchAvatarUrl: str = ""
     excludedUsers: List[str] = []
-    settings: Optional[dict] = None
+    settings: dict = {}

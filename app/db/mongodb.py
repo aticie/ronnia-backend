@@ -74,3 +74,9 @@ class AsyncMongoClient(AsyncIOMotorClient):
             if setting.name in user_settings:
                 setting.value = user_settings[setting.name]
         return default_settings
+
+    async def update_user_settings(self, osu_id: int, settings: DBSetting):
+        logger.info(f"Updating user settings: {settings}")
+        return await self.users_collection.update_one(
+            {"osuId": osu_id}, {"$set": {"settings": settings.dict(by_alias=True)}}
+        )
