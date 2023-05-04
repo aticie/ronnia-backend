@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, conlist
 
 
 class DBUserSettings(BaseModel):
@@ -10,7 +10,7 @@ class DBUserSettings(BaseModel):
     points_only: Optional[bool] = Field(alias='points-only')
     test: Optional[bool]
     cooldown: Optional[float] = Field(None, ge=0)
-    sr: Optional[Tuple[float, float]] = (0, -1)
+    sr: Optional[conlist(float, min_items=2, max_items=2)] = [0, -1]
 
     @validator('sr')
     def sr_must_be_in_range(cls, v):
@@ -19,6 +19,8 @@ class DBUserSettings(BaseModel):
                 raise ValueError("SR lower value must be positive.")
             elif v[1] != -1 and v[1] < v[0]:
                 raise ValueError("SR max value must be higher than lower value.")
+            elif v[1] >= 10:
+                v[1] = -1
         return v
 
 

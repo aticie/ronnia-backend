@@ -91,5 +91,12 @@ class AsyncMongoClient(AsyncIOMotorClient):
     async def add_excluded_user(self, osu_id: int, excluded_user: str):
         logger.info(f"Removing excluded user: {excluded_user}")
         return await self.users_collection.update_one(
-            {"osuId": osu_id}, {"$push": {"excludedUsers": excluded_user}}
+            {"osuId": osu_id}, {"$addToSet": {"excludedUsers": excluded_user}}
         )
+
+    async def get_excluded_users(self, osu_id: int):
+        logger.info(f"Getting excluded users for: {osu_id}")
+        user = await self.users_collection.find_one(
+            {"osuId": osu_id}
+        )
+        return user["excludedUsers"]
