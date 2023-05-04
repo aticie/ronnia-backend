@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import BulkWriteError
@@ -17,6 +18,10 @@ class AsyncMongoClient(AsyncIOMotorClient):
         self.user_settings_collection = self.users_db.get_collection("UserSettings")
         self.settings_collection = self.users_db.get_collection("Settings")
         self.exclude_collection = self.users_db.get_collection("ExcludeList")
+
+    async def get_live_users(self) -> List[DBUser]:
+        logger.info("Getting live users")
+        return await self.users_collection.find({"isLive": True}).to_list(length=None)
 
     async def get_user_from_twitch_id(self, twitch_id: int) -> DBUser:
         logger.info(f"Getting user from twitch id: {twitch_id}")
