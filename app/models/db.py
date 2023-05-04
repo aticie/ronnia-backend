@@ -8,7 +8,7 @@ class DBUserSettings(BaseModel):
     enable: bool = True
     sub_only: bool = Field(False, alias='sub-only')
     points_only: bool = Field(False, alias='points-only')
-    test: bool = True
+    test: bool = False
     cooldown: float = Field(30, ge=0)
     sr: Optional[conlist(float, min_items=2, max_items=2)] = [0, -1]
 
