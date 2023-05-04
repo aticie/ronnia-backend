@@ -4,12 +4,12 @@ from pydantic import BaseModel, Field, validator, conlist
 
 
 class DBUserSettings(BaseModel):
-    echo: Optional[bool]
-    enable: Optional[bool]
-    sub_only: Optional[bool] = Field(alias='sub-only')
-    points_only: Optional[bool] = Field(alias='points-only')
-    test: Optional[bool]
-    cooldown: Optional[float] = Field(None, ge=0)
+    echo: bool = True
+    enable: bool = True
+    sub_only: bool = Field(False, alias='sub-only')
+    points_only: bool = Field(False, alias='points-only')
+    test: bool = True
+    cooldown: float = Field(30, ge=0)
     sr: Optional[conlist(float, min_items=2, max_items=2)] = [0, -1]
 
     @validator('sr')
@@ -39,6 +39,7 @@ class UserResponse(BaseModel):
     twitchUsername: str
     twitchAvatarUrl: str = ""
     excludedUsers: List[str] = []
+    isLive: bool = False
 
 
 class DBUser(UserResponse):

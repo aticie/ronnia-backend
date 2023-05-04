@@ -119,9 +119,8 @@ def add_users(old_db, new_db):
                          twitchUsername=twitch_username,
                          twitchAvatarUrl=twitch_avatar)
         logger.info(f"Adding {osu_username}/{twitch_username} to database.")
-        operations.append(UpdateOne({"osuId": osu_id}, {"$set": db_user.dict()}, upsert=True))
-    if len(operations) != 0:
-        loop.run_until_complete(new_db.bulk_write_operations(operations))
+        loop.run_until_complete(
+            new_db.users_collection.update_one({"osuId": osu_id}, {"$set": db_user.dict()}, upsert=True))
 
 
 def add_user_settings(old_db, new_db):
@@ -192,7 +191,8 @@ def add_exclude_list(old_db, new_db):
             continue
         excluded_users_list = excluded_users.split(",")
         logger.info(f"Adding {osu_username}/{twitch_username} to exclude list.")
-        operations.append(UpdateOne({"osuId": int(osu_id)}, {"$set": {"excludedUsers": excluded_users_list}}, upsert=True))
+        operations.append(
+            UpdateOne({"osuId": int(osu_id)}, {"$set": {"excludedUsers": excluded_users_list}}, upsert=True))
 
     if len(operations) != 0:
         result = loop.run_until_complete(new_db.bulk_write_operations(operations))
