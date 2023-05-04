@@ -82,7 +82,7 @@ async def get_osu_avatar_url(osu_id: str):
         logger.info(f"Errored on osu! avatar of {osu_id}")
         return ""
     logger.info(f"Got osu! avatar of {osu_id}")
-    asyncio.wait(1)
+    await asyncio.sleep(1)
     return resp["avatar_url"]
 
 
