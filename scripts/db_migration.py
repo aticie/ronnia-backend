@@ -146,7 +146,9 @@ def add_user_settings(old_db, new_db):
     for setting in user_range_settings:
         user_id = setting["osu_id"]
         setting_key = setting["key"]
-        value = setting["range_start"], setting["range_end"]
+        value_min = setting["range_start"] if setting["range_start"] != -1 else 0
+        value_max = setting["range_end"]
+        value = [value_min, value_max]
         if user_id in db_settings:
             db_settings[user_id].update({setting_key: value})
         else:

@@ -19,9 +19,9 @@ class AsyncMongoClient(AsyncIOMotorClient):
         self.settings_collection = self.users_db.get_collection("Settings")
         self.exclude_collection = self.users_db.get_collection("ExcludeList")
 
-    async def get_live_users(self) -> List[DBUser]:
+    async def get_live_users(self, limit: int, offset: int) -> List[DBUser]:
         logger.info("Getting live users")
-        return await self.users_collection.find({"isLive": True}).to_list(length=None)
+        return await self.users_collection.find({"isLive": True}).skip(offset).limit(limit).to_list(length=limit)
 
     async def get_user_from_twitch_id(self, twitch_id: int) -> DBUser:
         logger.info(f"Getting user from twitch id: {twitch_id}")
