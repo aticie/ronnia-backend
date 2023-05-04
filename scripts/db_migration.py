@@ -216,6 +216,6 @@ if __name__ == '__main__':
 
     loop = asyncio.get_event_loop()
     add_users(old_db, new_db)
-    add_settings(old_db, new_db)
+    # add_settings(old_db, new_db)
     add_user_settings(old_db, new_db)
     add_exclude_list(old_db, new_db)
