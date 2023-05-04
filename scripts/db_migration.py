@@ -90,7 +90,6 @@ def add_users(old_db, new_db):
     users = old_db.execute("SELECT * FROM USERS;").fetchall()
     twitch_ids = [user["twitch_id"] for user in users]
     twitch_avatars = loop.run_until_complete(get_twitch_avatar_urls(twitch_ids))
-    operations = []
     for user in users:
         user_id, osu_username, twitch_username, _, twitch_id, osu_id, _ = user.values()
 

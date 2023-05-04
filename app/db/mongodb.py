@@ -30,7 +30,7 @@ class AsyncMongoClient(AsyncIOMotorClient):
         if user is not None:
             logger.info(f"Found user: {user}")
             return DBUser(**user)
-        logger.info(f"User not found")
+        logger.info("User not found")
 
     async def get_user_from_osu_id(self, osu_id: int) -> DBUser:
         logger.info(f"Getting user from osu id: {osu_id}")
@@ -38,7 +38,7 @@ class AsyncMongoClient(AsyncIOMotorClient):
         if user is not None:
             logger.info(f"Found user: {user}")
             return DBUser(**user)
-        logger.info(f"User not found")
+        logger.info("User not found")
 
     async def upsert_user(self, user: dict):
         logger.info(f"Upserting user: {user}")
