@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import oauth, user
+from app.routers import oauth, user, live
 
 logger = logging.getLogger(__name__)
 
@@ -25,3 +25,4 @@ app.add_middleware(
 
 app.include_router(oauth.router)
 app.include_router(user.router)
+app.include_router(live.router)
