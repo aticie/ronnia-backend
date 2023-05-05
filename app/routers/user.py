@@ -31,7 +31,7 @@ async def remove_user(
 ):
     await mongo_db.remove_user_by_twitch_id(user["twitchId"])
     response = RedirectResponse(url=request.headers.get("referer"))
-    response.set_cookie("token", expires=0, max_age=0)
+    response.set_cookie("token", expires=0, max_age=0, samesite="none")
     return response
 
 

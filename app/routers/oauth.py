@@ -61,17 +61,21 @@ async def redirect_route(
     db_user = await login_handler.get_user(code=code)
     if db_user:
         jwt_token = login_handler.create_user_jwt(db_user)
-        redirect_response.set_cookie(key="signup", expires=0, max_age=0)
-        redirect_response.set_cookie(key="signup_details", expires=0, max_age=0)
-        redirect_response.set_cookie(key="token", value=jwt_token)
+        redirect_response.set_cookie(
+            key="signup", expires=0, max_age=0, samesite="none"
+        )
+        redirect_response.set_cookie(
+            key="signup_details", expires=0, max_age=0, samesite="none"
+        )
+        redirect_response.set_cookie(key="token", value=jwt_token, samesite="none")
     else:
         jwt_token = login_handler.create_partial_user_jwt()
         redirect_response.set_cookie(
             key="signup",
             value="osu" if isinstance(login_handler, OsuLoginHandler) else "twitch",
+            samesite="none",
         )
         redirect_response.set_cookie(
-            key="signup_details",
-            value=jwt_token,
+            key="signup_details", value=jwt_token, samesite="none"
         )
     return redirect_response
