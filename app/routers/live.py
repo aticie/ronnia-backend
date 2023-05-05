@@ -11,7 +11,7 @@ router = APIRouter(prefix="/live", tags=["live"])
 mongo_db = AsyncMongoClient(settings.MONGODB_URL)
 
 
-@router.get("/", summary="Gets currently streaming users.")
+@router.get("/users", summary="Gets currently streaming users.")
 async def get_streaming_users(limit: int = 5, offset: int = 0) -> List[str]:
     users = await mongo_db.get_live_users(limit=limit, offset=offset)
     return [user.twitchUsername for user in users]
