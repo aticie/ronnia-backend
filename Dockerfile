@@ -1,8 +1,5 @@
 FROM python:3.11-slim-bullseye
 
-ARG PORT
-ENV PORT=$PORT
-
 # Set the working directory
 WORKDIR /src
 
@@ -19,5 +16,11 @@ ENV PYTHONPATH=/src;/src/app
 
 WORKDIR /src
 # Start the app
-CMD uvicorn app.main:app --host :: --port ${PORT}
+
+RUN addgroup --system nonroot \
+    && adduser --system nonroot --ingroup nonroot
+
+USER nonroot
+
+CMD uvicorn app.main:app --host 0.0.0.0 --port 8080
 
