@@ -26,8 +26,9 @@ async def get_user_details(user: Annotated[dict, Depends(decode_user_token)]):
 
 
 @router.delete("/me", summary="Deletes the registered user from database")
-async def remove_user(user: Annotated[dict, Depends(decode_user_token)],
-                      request: Request):
+async def remove_user(
+    user: Annotated[dict, Depends(decode_user_token)], request: Request
+):
     await mongo_db.remove_user_by_twitch_id(user["twitchId"])
     response = RedirectResponse(url=request.headers.get("referer"))
     response.set_cookie("token", expires=0, max_age=0)
@@ -40,8 +41,9 @@ async def get_settings(user: Annotated[dict, Depends(decode_user_token)]):
 
 
 @router.post("/settings", summary="Post user settings to database")
-async def post_settings(user: Annotated[dict, Depends(decode_user_token)],
-                        user_settings: DBUserSettings):
+async def post_settings(
+    user: Annotated[dict, Depends(decode_user_token)], user_settings: DBUserSettings
+):
     await mongo_db.update_user_settings(user["osuId"], user_settings)
 
 
@@ -52,14 +54,16 @@ async def get_excluded_users(user: Annotated[dict, Depends(decode_user_token)]):
 
 
 @router.post("/exclude", summary="Adds an excluded user to user's list")
-async def add_excluded_user(user: Annotated[dict, Depends(decode_user_token)],
-                            excluded_user: str):
+async def add_excluded_user(
+    user: Annotated[dict, Depends(decode_user_token)], excluded_user: str
+):
     await mongo_db.add_excluded_user(user["osuId"], excluded_user)
     return excluded_user
 
 
 @router.delete("/exclude", summary="Adds an excluded user to user's list")
-async def remove_excluded_user(user: Annotated[dict, Depends(decode_user_token)],
-                               excluded_user: str):
+async def remove_excluded_user(
+    user: Annotated[dict, Depends(decode_user_token)], excluded_user: str
+):
     await mongo_db.remove_excluded_user(user["osuId"], excluded_user)
     return excluded_user

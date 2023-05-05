@@ -21,7 +21,12 @@ class AsyncMongoClient(AsyncIOMotorClient):
 
     async def get_live_users(self, limit: int, offset: int) -> List[DBUser]:
         logger.info("Getting live users")
-        users = await self.users_collection.find({"isLive": True}).skip(offset).limit(limit).to_list(length=limit)
+        users = (
+            await self.users_collection.find({"isLive": True})
+            .skip(offset)
+            .limit(limit)
+            .to_list(length=limit)
+        )
         return [DBUser(**user) for user in users]
 
     async def get_user_from_twitch_id(self, twitch_id: int) -> DBUser:
@@ -102,7 +107,5 @@ class AsyncMongoClient(AsyncIOMotorClient):
 
     async def get_excluded_users(self, osu_id: int):
         logger.info(f"Getting excluded users for: {osu_id}")
-        user = await self.users_collection.find_one(
-            {"osuId": osu_id}
-        )
+        user = await self.users_collection.find_one({"osuId": osu_id})
         return user["excludedUsers"]

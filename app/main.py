@@ -13,7 +13,14 @@ if settings.DEBUG_MODE:
     origins = ["*"]
 else:
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
-    origins = ["https://ronnia.me", "https://staging.ronnia.me"]
+    origins = [
+        "https://ronnia.me",
+        "https://www.ronnia.me",
+        "https://staging.ronnia.me",
+        "http://ronnia.me",
+        "http://www.ronnia.me",
+        "http://staging.ronnia.me",
+    ]
 
 app.add_middleware(
     CORSMiddleware,

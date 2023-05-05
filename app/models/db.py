@@ -6,13 +6,13 @@ from pydantic import BaseModel, Field, validator, conlist
 class DBUserSettings(BaseModel):
     echo: bool = True
     enable: bool = True
-    sub_only: bool = Field(False, alias='sub-only')
-    points_only: bool = Field(False, alias='points-only')
+    sub_only: bool = Field(False, alias="sub-only")
+    points_only: bool = Field(False, alias="points-only")
     test: bool = False
     cooldown: float = Field(30, ge=0)
     sr: Optional[conlist(float, min_items=2, max_items=2)] = [0, -1]
 
-    @validator('sr')
+    @validator("sr")
     def sr_must_be_in_range(cls, v):
         if v is not None:
             if v[0] < 0:
