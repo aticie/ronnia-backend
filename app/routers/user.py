@@ -15,14 +15,25 @@ router = APIRouter(prefix="/user", tags=["user"])
 mongo_db = AsyncMongoClient(settings.MONGODB_URL)
 
 
-def decode_user_token(token: Annotated[str, Cookie()]):
+def decode_user_token(token: Annotated[str, Cookie()], ):
     return decode_jwt(token)
 
 
 @router.get("/me", summary="Gets registered user details from database")
-async def get_user_details(user: Annotated[dict, Depends(decode_user_token)]):
+async def get_user_details(user: Annotated[str, Cookie()] = None,
+                           signup: Annotated[str, Cookie()] = None):
+    if signup:
+        return {"signup": signup}
+    decode_jwt(user)
     db_user = await mongo_db.get_user_from_osu_id(user["osuId"])
     return UserResponse(**db_user.dict())
+
+
+@router.get("/logout", summary="Logout from the website")
+async def remove_user(request: Request):
+    response = RedirectResponse(url=request.headers.get("referer"))
+    response.set_cookie("token", expires=0, max_age=0)
+    return response
 
 
 @router.delete("/me", summary="Deletes the registered user from database")
@@ -31,7 +42,7 @@ async def remove_user(
 ):
     await mongo_db.remove_user_by_twitch_id(user["twitchId"])
     response = RedirectResponse(url=request.headers.get("referer"))
-    response.set_cookie("token", expires=0, max_age=0, secure=True, samesite="none")
+    response.set_cookie("token", expires=0, max_age=0)
     return response
 
 
