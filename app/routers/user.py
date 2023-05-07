@@ -20,13 +20,14 @@ def decode_user_token(token: Annotated[str, Cookie()], ):
 
 
 @router.get("/me", summary="Gets registered user details from database")
-async def get_user_details(user: Annotated[str, Cookie()] = None,
+async def get_user_details(token: Annotated[str, Cookie()] = None,
                            signup: Annotated[str, Cookie()] = None):
     if signup:
         return {"signup": signup}
-    decode_jwt(user)
-    db_user = await mongo_db.get_user_from_osu_id(user["osuId"])
-    return UserResponse(**db_user.dict())
+    if token:
+        user = decode_jwt(token)
+        db_user = await mongo_db.get_user_from_osu_id(user["osuId"])
+        return UserResponse(**db_user.dict())
 
 
 @router.get("/logout", summary="Logout from the website")
