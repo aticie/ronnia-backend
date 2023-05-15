@@ -2,6 +2,7 @@ from pydantic import BaseSettings
 
 
 class CommonSettings(BaseSettings):
+    SENTRY_DSN: str
     APP_NAME: str = "Ronnia"
     DEBUG_MODE: bool = False
     LOG_LEVEL: str = "INFO"

@@ -2,11 +2,17 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import sentry_sdk
 
 from app.config import settings
 from app.routers import oauth, user, live
 
 logger = logging.getLogger(__name__)
+
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN,
+    traces_sample_rate=1.0,
+)
 
 if settings.DEBUG_MODE:
     app = FastAPI()
