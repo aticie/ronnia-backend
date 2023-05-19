@@ -15,13 +15,16 @@ router = APIRouter(prefix="/user", tags=["user"])
 mongo_db = AsyncMongoClient(settings.MONGODB_URL)
 
 
-def decode_user_token(token: Annotated[str, Cookie()], ):
+def decode_user_token(
+    token: Annotated[str, Cookie()],
+):
     return decode_jwt(token)
 
 
 @router.get("/me", summary="Gets registered user details from database")
-async def get_user_details(token: Annotated[str, Cookie()] = None,
-                           signup: Annotated[str, Cookie()] = None):
+async def get_user_details(
+    token: Annotated[str, Cookie()] = None, signup: Annotated[str, Cookie()] = None
+):
     if signup:
         return {"signup": signup}
     if token:

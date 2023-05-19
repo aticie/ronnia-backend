@@ -13,11 +13,10 @@ class AsyncMongoClient(AsyncIOMotorClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.users_db = self.get_database("Ronnia")
-        self.statistics_db = self.get_database("Ronnia-Statistics")
+        self.statistics_collection = self.users_db.get_collection("Statistics")
+        self.beatmaps_collection = self.users_db.get_collection("Beatmaps")
         self.users_collection = self.users_db.get_collection("Users")
-        self.user_settings_collection = self.users_db.get_collection("UserSettings")
         self.settings_collection = self.users_db.get_collection("Settings")
-        self.exclude_collection = self.users_db.get_collection("ExcludeList")
 
     async def get_live_users(self, limit: int, offset: int) -> List[DBUser]:
         logger.info("Getting live users")
@@ -109,3 +108,35 @@ class AsyncMongoClient(AsyncIOMotorClient):
         logger.info(f"Getting excluded users for: {osu_id}")
         user = await self.users_collection.find_one({"osuId": osu_id})
         return user["excludedUsers"]
+
+    async def get_top_requested_beatmaps(self, limit: int, offset: int):
+        logger.info(f"Getting top requested beatmaps")
+        aggregation = [
+            [
+                {"$sortByCount": "$requested_beatmap_id"},
+                {
+                    "$lookup": {
+                        "from": "Beatmaps",
+                        "localField": "_id",
+                        "foreignField": "id",
+                        "as": "result",
+                    }
+                },
+                {
+                    "$replaceRoot": {
+                        "newRoot": {
+                            "$mergeObjects": [
+                                {"$arrayElemAt": ["$result", 0]},
+                                "$$ROOT",
+                            ]
+                        }
+                    }
+                },
+            ],
+            {"$skip": offset},
+            {"$limit": limit},
+        ]
+        beatmaps = await self.statistics_collection.aggregate(aggregation).to_list(
+            length=limit
+        )
+        return beatmaps

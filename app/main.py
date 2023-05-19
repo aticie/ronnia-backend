@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import sentry_sdk
 
 from app.config import settings
-from app.routers import oauth, user, live
+from app.routers import oauth, user, live, requests
 
 logger = logging.getLogger(__name__)
 
@@ -39,3 +39,4 @@ app.add_middleware(
 app.include_router(oauth.router)
 app.include_router(user.router)
 app.include_router(live.router)
+app.include_router(requests.router)
