@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 
 import aiohttp
 
@@ -26,7 +27,7 @@ async def main():
     access_token = await get_access_token()
     headers = {"Authorization": f"Bearer {access_token}"}
     requested_beatmaps = await mongo_db.get_top_requested_beatmaps(
-        limit=100000, offset=0
+        limit=100000, offset=0, time_start=datetime.datetime(2000, 1, 1)
     )
     print(f"Found {len(requested_beatmaps)} beatmaps.")
     for beatmap_details in requested_beatmaps:
