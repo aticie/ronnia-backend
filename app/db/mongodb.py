@@ -1,3 +1,4 @@
+import datetime
 import logging
 from typing import List
 
@@ -109,30 +110,31 @@ class AsyncMongoClient(AsyncIOMotorClient):
         user = await self.users_collection.find_one({"osuId": osu_id})
         return user["excludedUsers"]
 
-    async def get_top_requested_beatmaps(self, limit: int, offset: int):
+    async def get_top_requested_beatmaps(
+        self, limit: int, offset: int, time_start: datetime.datetime
+    ):
         logger.info(f"Getting top requested beatmaps")
         aggregation = [
-            [
-                {"$sortByCount": "$requested_beatmap_id"},
-                {
-                    "$lookup": {
-                        "from": "Beatmaps",
-                        "localField": "_id",
-                        "foreignField": "id",
-                        "as": "result",
+            {"$match": {"timestamp": {"$gte": time_start}}},
+            {"$sortByCount": "$requested_beatmap_id"},
+            {
+                "$lookup": {
+                    "from": "Beatmaps",
+                    "localField": "_id",
+                    "foreignField": "id",
+                    "as": "result",
+                }
+            },
+            {
+                "$replaceRoot": {
+                    "newRoot": {
+                        "$mergeObjects": [
+                            {"$arrayElemAt": ["$result", 0]},
+                            "$$ROOT",
+                        ]
                     }
-                },
-                {
-                    "$replaceRoot": {
-                        "newRoot": {
-                            "$mergeObjects": [
-                                {"$arrayElemAt": ["$result", 0]},
-                                "$$ROOT",
-                            ]
-                        }
-                    }
-                },
-            ],
+                }
+            },
             {"$skip": offset},
             {"$limit": limit},
         ]
