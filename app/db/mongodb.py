@@ -137,6 +137,7 @@ class AsyncMongoClient(AsyncIOMotorClient):
             },
             {"$skip": offset},
             {"$limit": limit},
+            {"$unset": ["_id", "result", "timestamp"]},
         ]
         beatmaps = await self.statistics_collection.aggregate(aggregation).to_list(
             length=limit
